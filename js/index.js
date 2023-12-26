@@ -17,6 +17,8 @@ const STACKS = [
 let loadedCards = false;
 // will hold the deck of cards
 const CARDS = [];
+// holds if a card has been selected
+window.selectedCard = undefined;
 
 const s = (p) => {
   p.setup = () => {
@@ -27,13 +29,10 @@ const s = (p) => {
     // modes
     p.noSmooth();
 
-
     // generate cards
     for (let suit = 0; suit < 4; suit++) {
       for (let card = 0; card < 13; card++) {
-        CARDS.push(
-          new Card(suit, card)
-        );
+        CARDS.push(new Card(suit, card));
       }
     }
 
@@ -54,38 +53,75 @@ const s = (p) => {
   p.draw = () => {
     p.background("#1c730d");
     if (!loadedCards) {
-        loadedCards = checkIfLoaded();
-        return;
-    };
+      loadedCards = checkIfLoaded();
+      return;
+    }
 
     for (let stack of STACKS) {
       stack.display();
     }
+
+    // always draw the selected card last
+    if (selectedCard) {
+      for (let i = 0; i < selectedCard.length; i++) {
+        selectedCard[i].displaySelectedCard(i);
+      }
+    };
+  };
+
+  p.mousePressed = () => {
+    for (let stack of STACKS) {
+      stack.mouseClicked();
+    }
+  };
+
+  p.mouseReleased = () => {
+    if (!selectedCard) {
+      return;
+    }
+    for (let stack of STACKS) {
+      if (stack.isInside() && stack.compareCards(selectedCard[0])) {
+        // stack of cards moved
+        let cards = selectedCard[0].stack.removeCard(selectedCard[0]);
+        for (let card of cards) {
+          card.mouseReleased();
+          stack.addCard(card);
+        }
+        selectedCard = undefined;
+        return;
+      }
+    }
+
+    // stack of cards moved
+    for (let card of selectedCard) {
+      card.mouseReleased();
+    }
+    selectedCard = undefined;
   };
 };
 
 // sets the back of the card image reference
 function setCardBack(img) {
-    for (let stack of STACKS) {
-        for (let card of stack.stack) {
-            card.setCardBack(img)
-        }
+  for (let stack of STACKS) {
+    for (let card of stack.stack) {
+      card.setCardBack(img);
     }
-    for (let card of CARDS) {
-        card.setCardBack(img);
-    }
+  }
+  for (let card of CARDS) {
+    card.setCardBack(img);
+  }
 }
 
 // checks if all cards are loaded yet
 function checkIfLoaded() {
-    for (let stack of STACKS) {
-        if (!stack.checkIfLoaded()) return false;
-    }
-    for (let card of CARDS) {
-        if (!card.loaded) return false;
-    }
+  for (let stack of STACKS) {
+    if (!stack.checkIfLoaded()) return false;
+  }
+  for (let card of CARDS) {
+    if (!card.loaded) return false;
+  }
 
-    return true;
+  return true;
 }
 
 // allow p5 access globally
