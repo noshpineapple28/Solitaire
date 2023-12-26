@@ -7,8 +7,8 @@ export default class PlayingStack {
   display() {
     for (let i = 0; i < this.stack.length; i++) {
       this.stack[i].display(
-        this.stackNum * p.width * 0.1,
-        (i + 1) * p.height * 0.05
+        (this.stackNum + 2) * (p.width * 0.1),
+        (i + 4) * (p.height * 0.05)
       );
 
       // if card on top is flipped over, make it visible
@@ -24,5 +24,19 @@ export default class PlayingStack {
 
   removeCard() {
     if (this.stack.length) this.stack.pop();
+  }
+
+  checkIfLoaded() {
+    for (let card of this.stack) {
+      if (!card.loaded) return false;
+    }
+
+    return true;
+  }
+
+  setCardBack(img) {
+    for (let card of this.stack) {
+      card.setCardBack(img);
+    }
   }
 }
