@@ -1,4 +1,5 @@
 import Card from "./Card.js";
+import ExcessStack from "./ExcessStack.js";
 import PlayingStack from "./PlayingStack.js";
 import "./libs/p5.js";
 ("use strict");
@@ -16,7 +17,7 @@ const STACKS = [
 // checks if cards are loaded
 let loadedCards = false;
 // will hold the deck of cards
-const CARDS = [];
+let excess;
 // holds if a card has been selected
 window.selectedCard = undefined;
 
@@ -30,6 +31,7 @@ const s = (p) => {
     p.noSmooth();
 
     // generate cards
+    const CARDS = [];
     for (let suit = 0; suit < 4; suit++) {
       for (let card = 0; card < 13; card++) {
         CARDS.push(new Card(suit, card));
@@ -46,6 +48,8 @@ const s = (p) => {
       }
     }
 
+    excess = new ExcessStack(CARDS);
+
     // loads the back of card image
     p.loadImage(`./media/back.png`, setCardBack);
   };
@@ -60,6 +64,9 @@ const s = (p) => {
     for (let stack of STACKS) {
       stack.display();
     }
+
+    // draw excess
+    excess.display();
 
     // always draw the selected card last
     if (selectedCard) {
@@ -107,7 +114,7 @@ function setCardBack(img) {
       card.setCardBack(img);
     }
   }
-  for (let card of CARDS) {
+  for (let card of excess.unrevealed) {
     card.setCardBack(img);
   }
 }
@@ -117,7 +124,7 @@ function checkIfLoaded() {
   for (let stack of STACKS) {
     if (!stack.checkIfLoaded()) return false;
   }
-  for (let card of CARDS) {
+  for (let card of excess.unrevealed) {
     if (!card.loaded) return false;
   }
 

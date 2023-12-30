@@ -1,35 +1,53 @@
-export default class PlayingStack {
-  constructor(stackNum) {
-    this.stackNum = stackNum;
-    this.stack = [];
+export default class ExcessStack {
+  constructor(cards) {
+    this.unrevealed = cards;
+    this.revealed = [];
+
+    this.x = p.width * 0.1;
+    this.y = p.height * 0.1;
+
+    this.drawCard();
   }
 
   display() {
-    for (let i = 0; i < this.stack.length; i++) {
-      let isOnTop = false;
-      // if card on top is flipped over, make it visible
-      if (i === this.stack.length - 1) {
-        isOnTop = true;
-        if (!this.stack[i].visible) this.stack[i].makeVisible();
-      }
-
-      // draw the card as long as it isnt within the selected cards
-      if (
-        !selectedCard ||
-        selectedCard.findIndex((c) => c === this.stack[i]) !== i
-      )
-        this.stack[i].display(isOnTop);
+    for (let card of this.unrevealed) {
+      card.display(false);
+    }
+    for (let card of this.revealed) {
+      card.display(false);
     }
   }
 
-  addCard(card) {
-    this.stack.push(card);
-    this.setCardPositions();
+  drawCard() {
+    let pulledCards = this.unrevealed.splice(0, 3);
+    if (pulledCards.length === 0) {
+      this.unrevealed = this.revealed;
+      this.revealed = [];
+    } else {
+      this.revealed.unshift(...pulledCards);
+    }
+
+    // set card visibility
+    for (let card of this.revealed) {
+      card.visible = false;
+      card.setPosition(this.x, this.y + 4 * (p.height * 0.05), this);
+    }
+    for (let card of this.unrevealed) {
+      card.visible = false;
+      card.setPosition(this.x, this.y, this);
+    }
+    for (let i = 0; i < 3 && i < this.revealed.length; i++) {
+      this.revealed[i].visible = true;
+      this.revealed[i].setPosition(
+        this.x,
+        this.y + (i + 4) * (p.height * 0.05),
+        this
+      );
+    }
   }
 
-  removeCard(card) {
-    let index = this.stack.findIndex((c) => c === card);
-    return this.stack.splice(index, this.stack.length - index);
+  push(card) {
+    this.unrevealed.push(card);
   }
 
   // sees if the top card can be placed on top
@@ -42,6 +60,10 @@ export default class PlayingStack {
       card.suit % 2 !== this.stack[this.stack.length - 1].suit % 2 &&
       card.card === this.stack[this.stack.length - 1].card - 1
     );
+  }
+
+  splice(index, delCount) {
+    return this.stack.splice(index, delCount);
   }
 
   slice(card) {
