@@ -73,13 +73,14 @@ const s = (p) => {
       for (let i = 0; i < selectedCard.length; i++) {
         selectedCard[i].displaySelectedCard(i);
       }
-    };
+    }
   };
 
   p.mousePressed = () => {
     for (let stack of STACKS) {
       stack.mouseClicked();
     }
+    excess.mouseClicked();
   };
 
   p.mouseReleased = () => {
@@ -95,6 +96,7 @@ const s = (p) => {
           stack.addCard(card);
         }
         selectedCard = undefined;
+        excess.mouseReleased();
         return;
       }
     }
@@ -104,6 +106,7 @@ const s = (p) => {
       card.mouseReleased();
     }
     selectedCard = undefined;
+    excess.mouseReleased();
   };
 };
 
@@ -115,6 +118,9 @@ function setCardBack(img) {
     }
   }
   for (let card of excess.unrevealed) {
+    card.setCardBack(img);
+  }
+  for (let card of excess.revealed) {
     card.setCardBack(img);
   }
 }

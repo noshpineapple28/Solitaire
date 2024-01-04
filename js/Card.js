@@ -97,7 +97,11 @@ export default class Card {
       p.image(this.cardImage, x, y, this.width, this.height);
       return;
     }
-    p.image(this.back, x, y, this.width, this.height);
+    try {
+      p.image(this.back, x, y, this.width, this.height);
+    } catch {
+      console.log(this);
+    }
   }
 
   displaySelectedCard(index = 0) {
